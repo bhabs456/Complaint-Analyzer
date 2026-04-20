@@ -1,14 +1,3 @@
-"""
-seed_data.py
-============
-Reads complaints_dataset.txt and seeds the database in bulk.
-
-Usage:
-    cd backend
-    python -m data.seed_data          # insert all 1000 complaints
-    python -m data.seed_data --clear   # wipe existing + re-insert
-"""
-
 import sys
 import os
 import argparse

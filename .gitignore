@@ -33,3 +33,6 @@ build/
 
 # Byte-compiled
 *.pyc
+
+# Data files
+*.csv
