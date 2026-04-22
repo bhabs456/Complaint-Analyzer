@@ -1,0 +1,35 @@
+tests = [
+    {"description": "water overflowing from drain causing bad smell on road", "expected": "sewage"},
+    {"description": "heavy rain created waterlogging and traffic congestion in area", "expected": "sewage"},
+    {"description": "electric wire hanging low and sparking near street", "expected": "electricity"},
+    {"description": "entire street is dark due to non functional streetlights", "expected": "lighting"},
+    {"description": "garbage burning releasing smoke and polluting air", "expected": "pollution"},
+    {"description": "road full of potholes making driving dangerous", "expected": "roads"},
+    {"description": "continuous water leakage from pipe near building", "expected": "water"},
+    {"description": "sewer blockage causing dirty water to flow on street", "expected": "sewage"},
+    {"description": "power outage in whole locality since morning", "expected": "electricity"},
+    {"description": "dust from construction causing breathing problems", "expected": "pollution"},
+
+    {"description": "garbage not collected for days causing unhygienic conditions", "expected": "sanitation"},
+    {"description": "traffic signal not working leading to heavy jam", "expected": "traffic"},
+    {"description": "waterlogging near market due to poor drainage system", "expected": "sewage"},
+    {"description": "streetlights flickering and some completely off at night", "expected": "lighting"},
+    {"description": "transformer emitting sparks and loud noise", "expected": "electricity"},
+    {"description": "overflowing drain damaging nearby road surface", "expected": "sewage"},
+    {"description": "pipeline burst flooding street with clean water", "expected": "water"},
+    {"description": "vehicles stuck due to heavy traffic during rush hour", "expected": "traffic"},
+    {"description": "garbage burning along with dust causing air pollution", "expected": "pollution"},
+    {"description": "cracked road surface with uneven patches", "expected": "roads"},
+
+    {"description": "blocked drain causing stagnant dirty water and foul smell", "expected": "sewage"},
+    {"description": "frequent voltage fluctuations damaging appliances", "expected": "electricity"},
+    {"description": "dim streetlights reducing visibility at night", "expected": "lighting"},
+    {"description": "waste piling up near residential area creating dirty surroundings", "expected": "sanitation"},
+    {"description": "contaminated water supply with muddy water", "expected": "water"},
+    
+    {"description": "illegal parking causing traffic congestion on main road", "expected": "traffic"},
+    {"description": "open garbage dump producing bad smell and attracting flies", "expected": "sanitation"},
+    {"description": "sewage water leaking onto road after drain blockage", "expected": "sewage"},
+    {"description": "electric pole with exposed wires posing danger", "expected": "electricity"},
+    {"description": "thick smog and dust reducing air quality drastically", "expected": "pollution"}
+]

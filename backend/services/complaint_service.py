@@ -6,8 +6,15 @@ import pickle
 # =========================
 # LOAD ML MODEL
 # =========================
-model = pickle.load(open("ml_models/model.pkl", "rb"))
-vectorizer = pickle.load(open("ml_models/vectorizer.pkl", "rb"))
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+model_path = os.path.join(BASE_DIR, "ml_models", "model.pkl")
+vectorizer_path = os.path.join(BASE_DIR, "ml_models", "vectorizer.pkl")
+
+model = pickle.load(open(model_path, "rb"))
+vectorizer = pickle.load(open(vectorizer_path, "rb"))
 
 # =========================
 # TEXT NORMALIZATION (ENGLISH ONLY)
@@ -22,7 +29,11 @@ def normalize_text(text):
         "overflowing": "overflow",
         "blocked": "block",
         "cracked": "crack",
-        "flickering": "flicker"
+        "flickering": "flicker",
+        "streetlights": "streetlight",
+        "potholes": "pothole",
+        "roads": "road",
+        "drains": "drain"
     }
 
     for k, v in replacements.items():
@@ -121,10 +132,10 @@ def assign_category(description):
         scores["pollution"] += 3
 
     # 🔥 STRONG lighting override
-    if "streetlight" in desc or "street light" in desc:
-        scores["lighting"] += 6   # ⬅️ increase weight
+    if "streetlight" in desc:
+        scores["lighting"] += 6
 
-    if "flicker" in desc or "dark" in desc or "dim" in desc:
+    if "flicker" in desc or "dim" in desc or "dark" in desc:
         scores["lighting"] += 3
 
     # keep strong signals only
