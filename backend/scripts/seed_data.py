@@ -11,19 +11,19 @@ if sys.platform == "win32":
 # ------------------------------------
 # Make sure `backend/` is on sys.path
 # ------------------------------------
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app import create_app
 from database.db import db
 from models.complaint_model import Complaint
-from services.complaint_service import assign_category, assign_priority, generate_title
+from services.complaint_service import assign_category, assign_priority, generate_title, ml_predict
 
 # ------------------------------------
 # Resolve dataset path relative to the
 # backend/ directory (one level up from data/)
 # ------------------------------------
 DATASET_PATH = os.path.join(
-    os.path.dirname(__file__), "..", "complaints_dataset.txt"
+    os.path.dirname(__file__), "..", "datasets", "complaints_data.csv"
 )
 
 BATCH_SIZE = 100  # commit every N rows for efficiency
@@ -40,9 +40,17 @@ def parse_args():
 
 
 def load_complaints(filepath: str) -> list[str]:
-    """Read the dataset file and return non-empty, stripped lines."""
+    """Read the CSV dataset file and return up to 2000 non-empty descriptions."""
+    import csv
+    lines = []
     with open(filepath, "r", encoding="utf-8") as f:
-        lines = [line.strip() for line in f if line.strip()]
+        reader = csv.reader(f)
+        next(reader, None) # skip header
+        for row in reader:
+            if row and row[0].strip():
+                lines.append(row[0].strip())
+                if len(lines) >= 2000:
+                    break
     return lines
 
 
@@ -55,9 +63,9 @@ def seed(clear: bool = False):
 
         # --- Optionally clear old data ---
         if clear:
-            deleted = Complaint.query.delete()
-            db.session.commit()
-            print(f"[CLEAR] Deleted {deleted} existing complaints.")
+            db.drop_all()
+            db.create_all()
+            print("[CLEAR] Dropped and recreated tables to reset IDs to 1.")
 
         # --- Check for existing data to prevent duplicates ---
         existing_count = Complaint.query.count()
@@ -77,15 +85,29 @@ def seed(clear: bool = False):
 
         for i, description in enumerate(lines, start=1):
             try:
-                # --- Classify each complaint ---
-                category_data = assign_category(description)
-                priority_data = assign_priority(description, category_data["category"])
+                # --- Classify each complaint using Hybrid Logic ---
+                # 🔹 Rule-based
+                rule_data = assign_category(description)
+                rule_category = rule_data["category"]
+                rule_conf = rule_data["confidence"]
+
+                # 🔹 ML-based
+                ml_category, ml_conf = ml_predict(description)
+
+                if rule_conf >= 0.65:
+                    final_category = rule_category
+                elif ml_conf and ml_conf >= 0.75:
+                    final_category = ml_category
+                else:
+                    final_category = rule_category
+
+                priority_data = assign_priority(description, final_category)
                 title = generate_title(description)
 
                 complaint = Complaint(
                     title=title,
                     description=description,
-                    category=category_data["category"],
+                    category=final_category,
                     area="Delhi",
                     priority=priority_data["priority"],
                     status="pending",

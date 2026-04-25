@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from config import Config
 from database.db import db
 from sqlalchemy import text
@@ -7,6 +8,7 @@ from routes.complaint_routes import complaint_bp
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(Config)
     app.register_blueprint(complaint_bp)
 

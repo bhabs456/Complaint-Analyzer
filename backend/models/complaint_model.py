@@ -11,6 +11,7 @@ class Complaint(db.Model):
 
     category = db.Column(db.String(50))
     area = db.Column(db.String(100))
+    state = db.Column(db.String(50))
     priority = db.Column(db.String(20), default="medium")
     status = db.Column(db.String(20), default="pending")
 

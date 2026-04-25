@@ -22,8 +22,8 @@ def create_complaint():
         "priority": complaint.priority,
 
         # 🔥 Intelligence layer
-        "category_info": result["category_info"],
-        "priority_info": result["priority_info"]
+        "priority_info": result.get("priority_info", {}),
+        "confidence": result.get("confidence", 0)
     })
 
 # 🔹 GET - All Complaints
@@ -47,9 +47,26 @@ def fetch_complaints():
             "description": c.description,
             "category": c.category,
             "area": c.area,
+            "state": c.state,
             "priority": c.priority,
             "status": c.status,
             "created_at": c.created_at
         })
 
     return jsonify(result)
+
+# 🔹 PUT - Update Complaint Status
+@complaint_bp.route("/complaints/<int:complaint_id>", methods=["PUT"])
+def update_complaint(complaint_id):
+    from models.complaint_model import Complaint
+    from database.db import db
+    complaint = Complaint.query.get(complaint_id)
+    if not complaint:
+        return jsonify({"error": "Complaint not found"}), 404
+    
+    data = request.json
+    if "status" in data:
+        complaint.status = data["status"]
+        db.session.commit()
+    
+    return jsonify({"message": "Status updated successfully", "status": complaint.status})

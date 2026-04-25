@@ -108,40 +108,94 @@ def assign_category(description):
             if word in desc:
                 scores[category] += 2 if " " in word else 1
 
+    
     # =========================
-    # 🔥 CONTEXT OVERRIDES (CLEAN)
+    # 🔥 CONTEXT OVERRIDES (FINAL - HIERARCHICAL)
     # =========================
-
-    # sewage dominates water
-    if "drain" in desc or "sewer" in desc or "waterlogging" in desc:
+    
+    # -------------------------
+    # 1. SEWAGE DOMINANCE (TOP PRIORITY)
+    # -------------------------
+    if any(word in desc for word in ["drain", "sewer", "gutter", "waterlogging", "dirty water"]):
+        scores["sewage"] += 7
+    
+    # strong overflow condition
+    if "overflow" in desc and any(word in desc for word in ["drain", "sewer", "gutter"]):
         scores["sewage"] += 4
-
-    if "overflow" in desc and ("drain" in desc or "water" in desc):
-        scores["sewage"] += 3
-
-    # electricity danger
-    if "wire" in desc or "spark" in desc:
-        scores["electricity"] += 3
-
-    # lighting specificity
-    if "streetlight" in desc or "dark" in desc:
-        scores["lighting"] += 3
-
-    # pollution
-    if "smoke" in desc or "burning" in desc:
-        scores["pollution"] += 3
-
-    # 🔥 STRONG lighting override
+    
+    # sewage overrides water
+    if scores["sewage"] > 0:
+        scores["water"] -= 2
+    
+    
+    # -------------------------
+    # 2. WATER (ONLY IF PURE CASE)
+    # -------------------------
+    if any(word in desc for word in ["pipe", "pipeline", "leak", "burst"]):
+        # only assign water if no sewage context
+        if not any(word in desc for word in ["drain", "sewer", "waterlogging", "dirty water"]):
+            scores["water"] += 4
+    
+    
+    # -------------------------
+    # 3. ELECTRICITY (STRONG SIGNALS)
+    # -------------------------
+    if any(word in desc for word in ["wire", "spark", "transformer", "short circuit"]):
+        scores["electricity"] += 6
+    
+    # power outage / supply issues
+    if any(word in desc for word in ["power cut", "power outage", "no power", "voltage"]):
+        scores["electricity"] += 7
+    
+    
+    # -------------------------
+    # 4. LIGHTING (CONTEXT-SPECIFIC)
+    # -------------------------
     if "streetlight" in desc:
-        scores["lighting"] += 6
-
-    if "flicker" in desc or "dim" in desc or "dark" in desc:
+        scores["lighting"] += 5
+    
+    if any(word in desc for word in ["flicker", "dim", "dark", "no light"]):
         scores["lighting"] += 3
-
-    # keep strong signals only
-    if "wire" in desc or "spark" in desc or "transformer" in desc:
-        scores["electricity"] += 3
-
+    
+    # prevent lighting overriding real electricity issues
+    if scores["electricity"] > 0 and "streetlight" in desc:
+        scores["lighting"] -= 2
+    
+    
+    # -------------------------
+    # 5. POLLUTION (AIR-BASED)
+    # -------------------------
+    if any(word in desc for word in ["smoke", "smog", "fumes"]):
+        scores["pollution"] += 6
+    
+    if any(word in desc for word in ["burning", "garbage burning"]):
+        scores["pollution"] += 4
+    
+    
+    # -------------------------
+    # 6. TRAFFIC (OUTCOME PRIORITY)
+    # -------------------------
+    if any(word in desc for word in ["traffic", "jam", "congestion"]):
+        scores["traffic"] += 5
+    
+    # traffic dominates roads
+    if scores["traffic"] > 0 and scores["roads"] > 0:
+        scores["traffic"] += 3
+    
+    
+    # -------------------------
+    # 7. FINAL ROOT-CAUSE PRIORITY
+    # -------------------------
+    
+    # sewage dominates traffic (root cause)
+    if scores["sewage"] > 0 and scores["traffic"] > 0:
+        scores["sewage"] += 3
+    
+    # sewage dominates roads
+    if scores["sewage"] > 0 and scores["roads"] > 0:
+        scores["sewage"] += 2
+            
+    
     # =========================
     # FINAL DECISION
     # =========================
