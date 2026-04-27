@@ -5,6 +5,7 @@ import MapPage from "./pages/MapPage";
 import ComplaintsPage from "./pages/ComplaintsPage";
 import AddComplaint from "./pages/AddComplaint";
 import Analytics from "./pages/Analytics";
+import Auth from "./pages/Auth";
 import "./App.css";
 
 const capitalize = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
@@ -25,6 +26,7 @@ const PAGE_TITLES = {
 };
 
 export default function App() {
+  const [user, setUser] = useState(null);
   const [page, setPage] = useState("dashboard");
   const [state, setState] = useState("Delhi");
   const [area, setArea] = useState("All Areas");
@@ -126,6 +128,10 @@ export default function App() {
     }
   };
 
+  if (!user) {
+    return <Auth onLogin={setUser} />;
+  }
+
   return (
     <div className="app-shell">
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -135,6 +141,7 @@ export default function App() {
         setPage={setPage}
         menuOpen={menuOpen}
         onNavigate={() => setMenuOpen(false)}
+        role={user.role}
       />
 
       <div className="app-main">
@@ -185,10 +192,10 @@ export default function App() {
 
         <div className="app-content">
           {page === "dashboard" && <Dashboard area={area} setArea={setArea} complaints={filtered} onStatusUpdate={onStatusUpdate} />}
-          {page === "map" && <MapPage complaints={filtered} />}
+          {page === "map" && user.role === 'admin' && <MapPage complaints={filtered} />}
           {page === "complaints" && <ComplaintsPage complaints={filtered} onStatusUpdate={onStatusUpdate} />}
           {page === "add" && <AddComplaint onAdd={onAdd} />}
-          {page === "analytics" && <Analytics complaints={filtered} />}
+          {page === "analytics" && user.role === 'admin' && <Analytics complaints={filtered} />}
         </div>
       </div>
     </div>

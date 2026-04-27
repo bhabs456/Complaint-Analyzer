@@ -1,12 +1,14 @@
-const NAV = [
-  { id: "dashboard", label: "Dashboard", icon: "O" },
-  { id: "map", label: "Map View", icon: "M" },
-  { id: "complaints", label: "Complaints", icon: "=" },
-  { id: "add", label: "Add Complaint", icon: "+" },
-  { id: "analytics", label: "Analytics", icon: "~" },
-];
+export default function Sidebar({ page, setPage, menuOpen, onNavigate, role }) {
+  const NAV = [
+    { id: "dashboard", label: "Dashboard", icon: "O", roles: ['user', 'admin'] },
+    { id: "map", label: "Map View", icon: "M", roles: ['admin'] },
+    { id: "complaints", label: "Complaints", icon: "=", roles: ['user', 'admin'] },
+    { id: "add", label: "Add Complaint", icon: "+", roles: ['user', 'admin'] },
+    { id: "analytics", label: "Analytics", icon: "~", roles: ['admin'] },
+  ];
+  
+  const filteredNav = NAV.filter(n => n.roles.includes(role || 'user'));
 
-export default function Sidebar({ page, setPage, menuOpen, onNavigate }) {
   return (
     <aside className={`app-sidebar ${menuOpen ? "is-open" : ""}`}>
       <div style={{ padding: "28px 24px 20px" }}>
@@ -19,7 +21,7 @@ export default function Sidebar({ page, setPage, menuOpen, onNavigate }) {
         </div>
       </div>
       <div style={{ padding: "8px 12px", flex: 1 }}>
-        {NAV.map(n => (
+        {filteredNav.map(n => (
           <button
             key={n.id}
             onClick={() => {
@@ -52,10 +54,10 @@ export default function Sidebar({ page, setPage, menuOpen, onNavigate }) {
       </div>
       <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(255,255,255,.06)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#3b82f6,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 13 }}>MO</div>
+          <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#3b82f6,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 13 }}>{role === 'admin' ? 'AD' : 'US'}</div>
           <div>
-            <div style={{ color: "#e2e8f0", fontSize: 13, fontWeight: 500 }}>Municipal Officer</div>
-            <div style={{ color: "#475569", fontSize: 11 }}>Delhi MCorp</div>
+            <div style={{ color: "#e2e8f0", fontSize: 13, fontWeight: 500 }}>{role === 'admin' ? 'Administrator' : 'Citizen User'}</div>
+            <div style={{ color: "#475569", fontSize: 11 }}>CivicLens Account</div>
           </div>
         </div>
       </div>

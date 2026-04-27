@@ -4,13 +4,20 @@ from config import Config
 from database.db import db
 from sqlalchemy import text
 from routes.complaint_routes import complaint_bp
+from routes.auth_routes import auth_bp
+from flask_jwt_extended import JWTManager
+
 
 
 def create_app():
     app = Flask(__name__)
     CORS(app)
     app.config.from_object(Config)
+    
+    jwt = JWTManager(app)
+    
     app.register_blueprint(complaint_bp)
+    app.register_blueprint(auth_bp)
 
     db.init_app(app)
     from models.complaint_model import Complaint
@@ -33,6 +40,9 @@ def create_app():
             return str(e)
 
     return app
+
+
+    
 
 if __name__ == "__main__":
     app = create_app()
